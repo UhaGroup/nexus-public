@@ -1,0 +1,35 @@
+name: Build Nexus Repository
+
+on:
+  workflow_dispatch:  # این خط به شما امکان می‌دهد workflow را به صورت دستی اجرا کنید
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Set up Node.js and Yarn
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # نسخه پایدار و توصیه شده برای ابزارهای frontend
+    - run: corepack enable # فعال‌سازی corepack برای مدیریت yarn
+    - run: yarn --version # برای تأیید نصب yarn
+
+    - name: Build with Maven
+      run: |
+        ./mvnw clean install -Ppublic -DskipTests
+
+    - name: Upload build artifact (JAR file)
+      uses: actions/upload-artifact@v4
+      with:
+        name: nexus-repository-core
+        path: public/selfhosted/assemblies/nexus-repository-core/target/assembly/
