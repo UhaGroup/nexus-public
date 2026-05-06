@@ -1,7 +1,7 @@
-name: Build Nexus Repository
+name: Build Nexus Repository (Full Version)
 
 on:
-  workflow_dispatch:  # این خط به شما امکان می‌دهد workflow را به صورت دستی اجرا کنید
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,12 +17,19 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Set up Node.js and Yarn
+    - name: Install Yarn Classic from Ubuntu repo
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y yarn
+
+    - name: Install Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: '20' # نسخه پایدار و توصیه شده برای ابزارهای frontend
-    - run: corepack enable # فعال‌سازی corepack برای مدیریت yarn
-    - run: yarn --version # برای تأیید نصب yarn
+        node-version: '20'
+
+    - name: Install project dependencies with Yarn
+      run: |
+        yarn install --frozen-lockfile
 
     - name: Build with Maven
       run: |
@@ -31,5 +38,5 @@ jobs:
     - name: Upload build artifact (JAR file)
       uses: actions/upload-artifact@v4
       with:
-        name: nexus-repository-core
+        name: nexus-repository-full
         path: public/selfhosted/assemblies/nexus-repository-core/target/assembly/
